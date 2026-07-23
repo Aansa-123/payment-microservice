@@ -1,0 +1,23 @@
+{
+  "name": "payments",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Aansa Rani",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"No tests configured yet\"",
+    "dev": "node app.js",
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "axios": "^1.18.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "kafkajs": "^2.2.4",
+    "mongoose": "^9.7.4"
+  }
+}
