@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // Ensure we always load the correct env file regardless of current working directory
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config();
 const MONGODB_URI = process.env.MONGO_URI;
 export const connectToDB = async () => {
   try {
