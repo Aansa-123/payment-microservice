@@ -4,7 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { connectToDB } from "./database/db.js";
 import paymentRoutes from "./routes/payments.routes.js";
-// import { connectProducer } from './service/kafka/kafka.producer.js'
+import { connectProducer } from './service/kafka/kafka.producer.js'
 dotenv.config();
 
 const app = express();
@@ -28,12 +28,12 @@ const startServer = async () => {
     console.log("Database connected successfully");
 
     // Try to connect to Kafka, but don't crash the server if it fails
-    // try {
-    //   await connectProducer();
-    //   console.log("Kafka producer started");
-    // } catch (kafkaError) {
-    //   console.error("Kafka producer connection failed, server will continue without Kafka:", kafkaError.message);
-    // }
+    try {
+      await connectProducer();
+      console.log("Kafka producer started");
+    } catch (kafkaError) {
+      console.error("Kafka producer connection failed, server will continue without Kafka:", kafkaError.message);
+    }
 
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
