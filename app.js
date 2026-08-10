@@ -9,7 +9,11 @@ import client from "prom-client";
 dotenv.config();
 
 const app = express();
-client.collectDefaultMetrics();
+const register = new client.Registry();
+client.collectDefaultMetrics({ 
+    register 
+});
+
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true,
@@ -20,10 +24,42 @@ app.use(cors({
 const port = process.env.PORT;
 // Middleware to parse JSON requests
 app.use(express.json());
-app.get("/metrics", async (req, res) => {
-  res.set("Content-Type", client.register.contentType);
-  res.end(await client.register.metrics());
+const httpRequestDuration = new client.Histogram({
+  name: "http_request_duration_seconds",
+  help: "HTTP request duration in seconds",
+  labelNames: ["method", "route", "status_code"],
+  buckets: [0.1, 0.5, 1, 2, 5],
+  registers: [register]
 });
+
+app.use((req, res, next) => {
+  const start = process.hrtime();
+
+  res.on("finish", () => {
+    const duration = process.hrtime(start);
+    const durationInSeconds =
+      duration[0] + duration[1] / 1e9;
+
+    httpRequestDuration.observe(
+      {
+        method: req.method,
+        route: req.route?.path || req.path,
+        status_code: res.statusCode,
+      },
+      durationInSeconds
+    );
+  });
+
+  next();
+});
+
+
+// Prometheus metrics endpoint
+app.get("/metrics", async (req, res) => {
+  res.set("Content-Type", register.contentType);
+  res.end(await register.metrics());
+});
+
 app.use("/payment", paymentRoutes);
 
 const startServer = async () => {
