@@ -5,10 +5,11 @@ import dotenv from "dotenv";
 import { connectToDB } from "./database/db.js";
 import paymentRoutes from "./routes/payments.routes.js";
 import { connectProducer } from './service/kafka/kafka.producer.js'
+import client from "prom-client";
 dotenv.config();
 
 const app = express();
-
+client.collectDefaultMetrics();
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true,
@@ -19,7 +20,10 @@ app.use(cors({
 const port = process.env.PORT;
 // Middleware to parse JSON requests
 app.use(express.json());
-
+app.get("/metrics", async (req, res) => {
+  res.set("Content-Type", client.register.contentType);
+  res.end(await client.register.metrics());
+});
 app.use("/payment", paymentRoutes);
 
 const startServer = async () => {
